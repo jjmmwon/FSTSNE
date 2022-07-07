@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+    <script src="components/scatterplot.js"></script>
+
+    <title>Data Comparison</title>
+    <style>
+      body {
+        background: #eee;
+      }
+
+      .container {
+        width: 2000px;
+        background: white;
+      }
+
+      .brushed {
+        stroke-width: 1;
+        stroke: gray;
+        r: 3;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav class="container navbar navbar-light bg-light">
+        <div class="container-fluid">
+          <span class="navbar-brand mb-0 h1">Dry_Bean_Dataset</span>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div class="text-left">
+        <svg width="500" height="500" id="scatterplot"></svg>
+      </div>
+    </main>
+
+    <script>
+      let dataPCA, dataRand, scatterplotPCA, scatterplotRand, selectedIndex;
+
+      function updateScatterplot(scatterplot, selectedIndex) {
+        scatterplot.update(selectedIndex);
+      }
+
+      d3.csv(
+        "https://raw.githubusercontent.com/jjmmwon/t-sneEvaluation/main/result/Dry_Bean_Dataset/perplexity_45_max_iter_750_learning_rate_auto_/Dry_Bean_Dataset_pca_embedded.csv"
+      ).then((csvData) => {
+        csvData.forEach((d) => {
+          d["0"] = +d["0"];
+          d["1"] = +d["1"];
+        });
+
+        dataPCA = csvData;
+
+        scatterplotPCA = new Scatterplot("#scatterplot", dataPCA, 400, 400);
+        scatterplotPCA.initialize();
+        updateScatterplot(scatterplotPCA);
+
+        scatterplotPCA.on("brush", (brushedItems) => {
+          selectedIndex = new Set(brushedItems.map((d) => d[""]));
+          updateScatterplot(scatterplotPCA, selectedIndex);
+          updateScatterplot(scatterplotRand, selectedIndex);
+        });
+      });
+
+      d3.csv(
+        "https://raw.githubusercontent.com/jjmmwon/t-sneEvaluation/main/result/Dry_Bean_Dataset/perplexity_45_max_iter_750_learning_rate_auto_/Dry_Bean_Dataset_random_embedded.csv"
+      ).then((csvData) => {
+        csvData.forEach((d) => {
+          d["0"] = +d["0"];
+          d["1"] = +d["1"];
+        });
+
+        dataRand = csvData;
+        margin = {
+          top: 10,
+          right: 50,
+          bottom: 40,
+          left: 700,
+        };
+
+        scatterplotRand = new Scatterplot(
+          "#scatterplot",
+          dataRand,
+          400,
+          400,
+          margin
+        );
+        scatterplotRand.initialize();
+        updateScatterplot(scatterplotRand);
+
+        scatterplotRand.on("brush", (brushedItems) => {
+          selectedIndex = new Set(brushedItems.map((d) => d[""]));
+          console.log(selectedIndex);
+          updateScatterplot(scatterplotPCA, selectedIndex);
+          updateScatterplot(scatterplotRand, selectedIndex);
+        });
+      });
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
