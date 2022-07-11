@@ -11,17 +11,17 @@
       crossorigin="anonymous"
     />
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3-queue.v3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
-    <script src="components/scatterplot.js"></script>
 
-    <title>Data Comparison</title>
+    <title>t-SNE Data Comparison</title>
     <style>
       body {
         background: #eee;
       }
 
       .container {
-        width: 2000px;
+        width: 2400px;
         background: white;
       }
 
@@ -37,80 +37,132 @@
     <header>
       <nav class="container navbar navbar-light bg-light">
         <div class="container-fluid">
-          <span class="navbar-brand mb-0 h1">Dry_Bean_Dataset</span>
+          <span class="navbar-brand mb-0 h1"
+            ><strong>t-SNE Data Comparison</strong></span
+          >
         </div>
       </nav>
     </header>
 
     <main class="container">
-      <div class="text-left">
-        <svg width="500" height="500" id="scatterplot"></svg>
+      <div class="row pt-2">
+        <div class="col-1 text-end pt-2 pe-1" id="selectionTitle">
+          <h6><strong>Data Title:</strong></h6>
+        </div>
+        <div class="col-8">
+          <select
+            id="dataTitle"
+            class="form-select"
+            aria-label="Default select example"
+          >
+            <option selected>Breast_Cancer</option>
+            <option value="BudgetItaly">BudgetItaly</option>
+            <option value="BudgetUK">BudgetUK</option>
+            <option value="Cigar">Cigar</option>
+            <option value="Crime">Crime</option>
+            <option value="Dry_Bean_Dataset">Dry_Bean_Dataset</option>
+            <option value="Fogs_MFCCs">Fogs_MFCCs</option>
+            <option value="Occupancy_Estimation">Occupancy_Estimation</option>
+            <option value="OnlineNewsPopularity">OnlineNewsPopularity</option>
+            <option value="TUANDROMD">TUANDROMD</option>
+            <option value="dermatology">dermatology</option>
+            <option value="energydata_complete">energydata_complete</option>
+            <option value="glass">glass</option>
+            <option value="heart_disease">heart_disease</option>
+            <option value="madelon">madelon</option>
+            <option value="mdvis">mdvis</option>
+            <option value="parkinsons_updrs">parkinsons_updrs</option>
+            <option value="soilmoisture_dataset">soilmoisture_dataset</option>
+            <option value="superconduct">superconduct</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row pt-2" id="Hyperparamter">
+        <div class="col-1 text-end pt-2 pe-1">
+          <h6><strong>Perplexity:</strong></h6>
+        </div>
+        <div class="col-1">
+          <select
+            id="Perplexity"
+            class="form-select"
+            aria-label="Default select example"
+          >
+            <option selected>15</option>
+            <option value="30">30</option>
+            <option value="45">45</option>
+          </select>
+        </div>
+        <div class="col-1 text-end pt-2 pe-1">
+          <h6><strong>Iterations:</strong></h6>
+        </div>
+        <div class="col-1">
+          <select
+            id="Iterations"
+            class="form-select"
+            aria-label="Default select example"
+          >
+            <option selected>500</option>
+            <option value="750">750</option>
+            <option value="1000">1000</option>
+          </select>
+        </div>
+        <div class="col-1 text-end pt-2 pe-1">
+          <h6><strong>LearningRate:</strong></h6>
+        </div>
+        <div class="col-1">
+          <select
+            id="LearningRate"
+            class="form-select"
+            aria-label="Default select example"
+          >
+            <option selected>auto</option>
+            <option value="200">200</option>
+            <option value="800">800</option>
+          </select>
+        </div>
+
+        <div class="col-2 text-center">
+          <button class="btn btn-primary" id="update">Update</button>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <table class="table table-striped text-center">
+          <thead>
+            <tr>
+              <th></th>
+              <th>PCA</th>
+              <th>Random Mean</th>
+              <th>Random1</th>
+              <th>Random2</th>
+              <th>Random3</th>
+              <th>Random4</th>
+              <th>Random5</th>
+              <th>Random6</th>
+              <th>Random7</th>
+              <th>Random8</th>
+              <th>Random9</th>
+              <th>Random10</th>
+            </tr>
+          </thead>
+          <tbody id="result-table"></tbody>
+        </table>
+        <svg width="200" height="200" id="scatterplotPCA"></svg>
+        <svg width="200" height="200" id="scatterplotRandom0"></svg>
+        <svg width="200" height="200" id="scatterplotRandom1"></svg>
+        <svg width="200" height="200" id="scatterplotRandom2"></svg>
+        <svg width="200" height="200" id="scatterplotRandom3"></svg>
+        <svg width="200" height="200" id="scatterplotRandom4"></svg>
+        <svg width="200" height="200" id="scatterplotRandom5"></svg>
+        <svg width="200" height="200" id="scatterplotRandom6"></svg>
+        <svg width="200" height="200" id="scatterplotRandom7"></svg>
+        <svg width="200" height="200" id="scatterplotRandom8"></svg>
+        <svg width="200" height="200" id="scatterplotRandom9"></svg>
       </div>
     </main>
 
-    <script>
-      let dataPCA, dataRand, scatterplotPCA, scatterplotRand, selectedIndex;
-
-      function updateScatterplot(scatterplot, selectedIndex) {
-        scatterplot.update(selectedIndex);
-      }
-
-      d3.csv(
-        "https://raw.githubusercontent.com/jjmmwon/t-sneEvaluation/main/result/Dry_Bean_Dataset/perplexity_45_max_iter_750_learning_rate_auto_/Dry_Bean_Dataset_pca_embedded.csv"
-      ).then((csvData) => {
-        csvData.forEach((d) => {
-          d["0"] = +d["0"];
-          d["1"] = +d["1"];
-        });
-
-        dataPCA = csvData;
-
-        scatterplotPCA = new Scatterplot("#scatterplot", dataPCA, 400, 400);
-        scatterplotPCA.initialize();
-        updateScatterplot(scatterplotPCA);
-
-        scatterplotPCA.on("brush", (brushedItems) => {
-          selectedIndex = new Set(brushedItems.map((d) => d[""]));
-          updateScatterplot(scatterplotPCA, selectedIndex);
-          updateScatterplot(scatterplotRand, selectedIndex);
-        });
-      });
-
-      d3.csv(
-        "https://raw.githubusercontent.com/jjmmwon/t-sneEvaluation/main/result/Dry_Bean_Dataset/perplexity_45_max_iter_750_learning_rate_auto_/Dry_Bean_Dataset_random_embedded.csv"
-      ).then((csvData) => {
-        csvData.forEach((d) => {
-          d["0"] = +d["0"];
-          d["1"] = +d["1"];
-        });
-
-        dataRand = csvData;
-        margin = {
-          top: 10,
-          right: 50,
-          bottom: 40,
-          left: 700,
-        };
-
-        scatterplotRand = new Scatterplot(
-          "#scatterplot",
-          dataRand,
-          400,
-          400,
-          margin
-        );
-        scatterplotRand.initialize();
-        updateScatterplot(scatterplotRand);
-
-        scatterplotRand.on("brush", (brushedItems) => {
-          selectedIndex = new Set(brushedItems.map((d) => d[""]));
-          console.log(selectedIndex);
-          updateScatterplot(scatterplotPCA, selectedIndex);
-          updateScatterplot(scatterplotRand, selectedIndex);
-        });
-      });
-    </script>
-
+    <script type="module" src="./src/main.js"></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"

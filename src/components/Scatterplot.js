@@ -1,36 +1,33 @@
+export { Scatterplot };
 class Scatterplot {
-  constructor(
-    svg,
-    data,
-    width = 500,
-    height = 500,
-    margin = {
-      top: 10,
-      right: 50,
-      bottom: 40,
-      left: 40,
-    }
-  ) {
+  constructor(svg, data, width = 400, height = 400) {
     this.svg = svg;
     this.data = data;
     this.width = width;
     this.height = height;
-    this.margin = margin;
+    this.margin = {
+      top: 50,
+      right: 50,
+      bottom: 50,
+      left: 40,
+    };
 
     this.selected = new Set();
     this.handlers = {};
   }
 
+  // initialize by making title, brush and groups of scatterplot
   initialize() {
+    let svgtitle = this.svg.slice(12);
+
     this.svg = d3.select(this.svg);
     this.container = this.svg.append("g");
+    this.title = this.svg.append("text");
     this.xAxis = this.svg.append("g");
     this.yAxis = this.svg.append("g");
-    this.legend = this.svg.append("g");
 
     this.xScale = d3.scaleLinear();
     this.yScale = d3.scaleLinear();
-    this.zScale = d3.scaleOrdinal().range(d3.schemeCategory10);
 
     this.svg
       .attr("width", this.width + this.margin.left + this.margin.right)
@@ -40,6 +37,18 @@ class Scatterplot {
       "transform",
       `translate(${this.margin.left}, ${this.margin.top})`
     );
+
+    this.title
+      .text(svgtitle)
+      .attr(
+        "transform",
+        `translate(${
+          (this.width + this.margin.left + this.margin.right) / 2
+        },${35})`
+      )
+      .attr("text-anchor", "middle")
+      .attr("font-size", "1.5rem")
+      .attr("font-weight", "bold");
 
     this.brush = d3
       .brush()
@@ -52,7 +61,9 @@ class Scatterplot {
       });
   }
 
-  update(selectedIndex = this.selected) {
+  //update when select event happened
+  selectionUpdate(data) {
+    this.data = data ?? this.data; // First update => this.data, else => data
     this.container.call(this.brush);
 
     this.xScale
@@ -71,13 +82,10 @@ class Scatterplot {
       .transition()
       .attr("cx", (d) => this.xScale(d["0"]))
       .attr("cy", (d) => this.yScale(d["1"]))
-      .attr("fill", (d) =>
-        selectedIndex.has(d[""]) ? "rgb(200,100,0)" : "rgb(0,100,200)"
-      )
-      .attr("opacity", 0.5)
+      .attr("fill", "rgb(0,100,200)")
+      .attr("opacity", 0.6)
       .attr("r", 2);
 
-    console.log(selectedIndex);
     this.xAxis
       .attr(
         "transform",
@@ -90,6 +98,15 @@ class Scatterplot {
       .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
       .transition()
       .call(d3.axisLeft(this.yScale));
+  }
+
+  brushUpdate(selectedIndex) {
+    this.circles
+      .transition()
+      .attr("r", (d) => (selectedIndex.has(d[""]) ? 3 : 2))
+      .attr("fill", (d) =>
+        selectedIndex.has(d[""]) ? "rgb(200,50,0)" : "rgb(0,100,200)"
+      );
   }
 
   isBrushed(d, selection) {
