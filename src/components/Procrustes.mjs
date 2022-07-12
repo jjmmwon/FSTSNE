@@ -5,6 +5,7 @@ class Procrustes {
     this.data = data;
   }
 
+  // 좌표들의 평균을 원점으로 위치
   #translation(datum) {
     let [x, y] = [0, 0];
     datum.forEach((d) => {
@@ -21,6 +22,7 @@ class Procrustes {
 
     return datum;
   }
+
   #uniformScaling(datum) {
     let s = 0;
     datum.forEach((d) => {
@@ -38,6 +40,7 @@ class Procrustes {
     return datum;
   }
 
+  // https://en.wikipedia.org/wiki/Procrustes_analysis의 rotation 파트에서 theta를 구하는 식을 통해 theta값 return
   #findTheta(base, datum) {
     let [numerator, denominator] = [0, 0];
     let x, y, z, w, theta;
@@ -52,6 +55,7 @@ class Procrustes {
     return theta;
   }
 
+  // 찾은 theta를 통해 모든 좌표 theta만큼 회전
   #rotation(datum, theta) {
     let cos, sin, u, v;
     cos = Math.cos(theta);
@@ -68,6 +72,12 @@ class Procrustes {
   }
 
   run() {
+    /*
+      random1을 base로 두고 나머지 data를 random1과 가장 가까운 모습으로 회전
+
+      각 데이터 translation and uniform scaling
+      -> 각 데이터 별 theta를 구하고 그 각도만큼 회전시킨다.
+    */
     let base;
 
     this.data.forEach((d) => {
@@ -76,8 +86,9 @@ class Procrustes {
 
     base = this.data[1];
 
-    // for (let i = 1; i < this.data.length; i++) {
-    //   this.#rotation(this.data[i], this.#findTheta(base, this.data[i]));
-    // }
+    for (let i = 0; i < this.data.length; i++) {
+      if (i == 1) continue;
+      this.#rotation(this.data[i], this.#findTheta(base, this.data[i]));
+    }
   }
 }

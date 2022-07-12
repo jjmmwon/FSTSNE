@@ -18,7 +18,8 @@ let data, procrustes;
 async function Update() {
   /*
     Take title and hyperparameters
-    -> update url
+    -> update url and data
+    -> apply Procrustes analysis to data
     -> init ? drawScatterplot : select update
     -> table update    
   */
@@ -51,7 +52,6 @@ let scatterplot, brushedIndex;
 
 function drawScatterplot(url) {
   scatterplot = [];
-  //await urltoData(url);
   let size = 300;
   for (let i = 0; i < 11; i++) {
     scatterplot[i] = new Scatterplot(
@@ -74,7 +74,6 @@ function initScatterplot(scatterplot) {
 }
 
 function selectionOccured() {
-  // await urltoData(url);
   scatterplot.forEach((d, idx) => d.selectionUpdate(data[idx]));
 }
 
