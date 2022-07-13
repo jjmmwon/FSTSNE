@@ -71,6 +71,38 @@ class Procrustes {
     return datum;
   }
 
+  #shareComparison(base, datum) {
+    let diff = 0;
+    for (let i = 0; i < base.length; i++) {
+      diff +=
+        (base[i]["0"] - datum[i]["0"]) * (base[i]["0"] - datum[i]["0"]) +
+        (base[i]["1"] - datum[i]["1"]) * (base[i]["1"] - datum[i]["1"]);
+    }
+
+    return Math.sqrt(diff);
+  }
+
+  #rotation3(datum) {
+    let degree = Math.PI / 60;
+    this.#rotation(datum, degree);
+  }
+
+  #findBestCaseByIter(base, datum) {
+    let comparisonResult = [];
+
+    for (let i = 0; i < 120; i++) {
+      this.#rotation3(datum);
+      comparisonResult.push(this.#shareComparison(base, datum));
+    }
+
+    let min = Math.min(...comparisonResult);
+    let minIdx = comparisonResult.indexOf(min);
+
+    for (let i = 0; i < minIdx; i++) {
+      this.#rotation3(datum);
+    }
+  }
+
   run() {
     /*
       random1을 base로 두고 나머지 data를 random1과 가장 가까운 모습으로 회전
@@ -88,7 +120,8 @@ class Procrustes {
 
     for (let i = 0; i < this.data.length; i++) {
       if (i == 1) continue;
-      this.#rotation(this.data[i], this.#findTheta(base, this.data[i]));
+      // this.#rotation(this.data[i], this.#findTheta(base, this.data[i]));
+      this.#findBestCaseByIter(base, this.data[i]);
     }
   }
 }

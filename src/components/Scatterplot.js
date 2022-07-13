@@ -66,12 +66,8 @@ class Scatterplot {
     this.data = data ?? this.data; // First update => this.data, else => data
     this.container.call(this.brush);
 
-    this.xScale
-      .domain(d3.extent(this.data, (d) => d["0"]))
-      .range([0, this.width]);
-    this.yScale
-      .domain(d3.extent(this.data, (d) => d["1"]))
-      .range([this.height, 0]);
+    this.xScale.domain([-2, 2]).range([0, this.width]);
+    this.yScale.domain([-2, 2]).range([this.height, 0]);
 
     this.circles = this.container
       .selectAll("circle")
@@ -109,7 +105,12 @@ class Scatterplot {
       );
   }
 
+  brushReset() {
+    this.container.call(this.brush.clear);
+  }
+
   isBrushed(d, selection) {
+    if (!selection) return;
     let [[x0, y0], [x1, y1]] = selection;
     let x = this.xScale(d["0"]);
     let y = this.yScale(d["1"]);

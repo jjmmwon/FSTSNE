@@ -52,7 +52,7 @@ let scatterplot, brushedIndex;
 
 function drawScatterplot(url) {
   scatterplot = [];
-  let size = 300;
+  let size = 320;
   for (let i = 0; i < 11; i++) {
     scatterplot[i] = new Scatterplot(
       `#scatterplot${url.indexList[i]}`,
@@ -63,7 +63,7 @@ function drawScatterplot(url) {
     scatterplot[i].initialize();
     scatterplot[i].on("brush", (brushedItems) => {
       brushedIndex = new Set(brushedItems.map((d) => d[""]));
-      brushOccured(brushedIndex);
+      brushOccured(brushedIndex, i);
     });
   }
   initScatterplot(scatterplot);
@@ -77,8 +77,9 @@ function selectionOccured() {
   scatterplot.forEach((d, idx) => d.selectionUpdate(data[idx]));
 }
 
-function brushOccured(brushedIndex) {
+function brushOccured(brushedIndex, idx) {
   scatterplot.forEach((d) => d.brushUpdate(brushedIndex));
+  //scatterplot[idx].brushReset();
 }
 
 async function urltoData(url) {
