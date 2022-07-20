@@ -71,7 +71,8 @@ class Procrustes {
     return datum;
   }
 
-  #shareComparison(base, datum) {
+  #shapeComparison(base, datum) {
+    // base 데이터와 입력받은 datum의 dissimilarity 측정(using Euclidean distance)
     let diff = 0;
     for (let i = 0; i < base.length; i++) {
       diff +=
@@ -82,25 +83,25 @@ class Procrustes {
     return Math.sqrt(diff);
   }
 
-  #rotation3(datum) {
-    let degree = Math.PI / 60;
+  #rotation6(datum) {
+    // 3도 회전
+    let degree = Math.PI / 30;
     this.#rotation(datum, degree);
   }
 
   #findBestCaseByIter(base, datum) {
+    // 3도씩 120번 회전해 최고의 케이스를 찾고 그만큼 회전
     let comparisonResult = [];
 
-    for (let i = 0; i < 120; i++) {
-      this.#rotation3(datum);
-      comparisonResult.push(this.#shareComparison(base, datum));
+    for (let i = 0; i < 60; i++) {
+      this.#rotation6(datum);
+      comparisonResult.push(this.#shapeComparison(base, datum));
     }
 
     let min = Math.min(...comparisonResult);
     let minIdx = comparisonResult.indexOf(min);
 
-    for (let i = 0; i < minIdx; i++) {
-      this.#rotation3(datum);
-    }
+    this.#rotation(datum, (Math.PI / 30) * minIdx);
   }
 
   run() {
