@@ -52,7 +52,7 @@ let scatterplot, brushedIndex;
 
 function drawScatterplot(url) {
   scatterplot = [];
-  let size = 320;
+  let size = 480;
   for (let i = 0; i < 11; i++) {
     scatterplot[i] = new Scatterplot(
       `#scatterplot${url.indexList[i]}`,

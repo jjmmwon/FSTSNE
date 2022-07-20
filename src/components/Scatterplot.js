@@ -14,6 +14,7 @@ class Scatterplot {
 
     this.selected = new Set();
     this.handlers = {};
+    this.isRed = true;
   }
 
   // initialize by making title, brush and groups of scatterplot
@@ -99,10 +100,21 @@ class Scatterplot {
   brushUpdate(selectedIndex) {
     this.circles
       .transition()
-      .attr("r", (d) => (selectedIndex.has(d[""]) ? 3 : 2))
-      .attr("fill", (d) =>
-        selectedIndex.has(d[""]) ? "rgb(200,50,0)" : "rgb(0,100,200)"
-      );
+      .attr("r", (d) => (selectedIndex.has(d[""]) ? 3 : 2));
+
+    this.isRed = d3
+      .select("input[type=radio][id=redBrush]")
+      .property("checked");
+
+    if (this.isRed) {
+      this.circles.classed("redBrush", (d) => selectedIndex.has(d[""]));
+    } else {
+      this.circles.classed("greenBrush", (d) => selectedIndex.has(d[""]));
+    }
+
+    // .attr("fill", (d) =>
+    //   selectedIndex.has(d[""]) ? "rgb(200,50,0)" : "rgb(0,100,200)"
+    // );
   }
 
   brushReset() {
@@ -121,7 +133,16 @@ class Scatterplot {
   brushCircles(event) {
     let selection = event.selection;
 
-    this.circles.classed("brushed", (d) => this.isBrushed(d, selection));
+    this.isRed = d3
+      .select("input[type=radio][id=redBrush]")
+      .property("checked");
+
+    if (this.isRed) {
+      this.circles.classed("redBrush", (d) => this.isBrushed(d, selection));
+    } else {
+      this.circles.classed("greenBrush", (d) => this.isBrushed(d, selection));
+    }
+    //this.circles.classed("brushed", (d) => this.isBrushed(d, selection));
 
     if (this.handlers.brush)
       this.handlers.brush(
