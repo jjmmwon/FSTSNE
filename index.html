@@ -18,10 +18,25 @@
     <style>
       body {
         background: #eee;
+        --bs-body-font-size: 1.5rem;
+      }
+
+      option {
+        font-size: 25px;
+      }
+
+      .redBrush {
+        fill: rgb(255, 127, 14);
+        r: 3;
+      }
+
+      .greenBrush {
+        fill: rgb(44, 160, 44);
+        r: 3;
       }
 
       .container {
-        width: 2400px;
+        max-width: 2400px;
         background: white;
       }
 
@@ -29,6 +44,10 @@
         stroke-width: 1;
         stroke: gray;
         r: 3;
+      }
+
+      .best {
+        font-weight: bold;
       }
     </style>
   </head>
@@ -38,7 +57,9 @@
       <nav class="container navbar navbar-light bg-light">
         <div class="container-fluid">
           <span class="navbar-brand mb-0 h1"
-            ><strong>t-SNE Data Comparison</strong></span
+            ><strong style="font-size: xx-large"
+              >t-SNE Data Comparison</strong
+            ></span
           >
         </div>
       </nav>
@@ -47,13 +68,14 @@
     <main class="container">
       <div class="row pt-2">
         <div class="col-1 text-end pt-2 pe-1" id="selectionTitle">
-          <h6><strong>Data Title:</strong></h6>
+          <h4><strong>Data Title:</strong></h4>
         </div>
         <div class="col-8">
           <select
             id="dataTitle"
             class="form-select"
             aria-label="Default select example"
+            style="font-size: 20px"
           >
             <option selected>Breast_Cancer</option>
             <option value="BudgetItaly">BudgetItaly</option>
@@ -80,13 +102,14 @@
 
       <div class="row pt-2" id="Hyperparamter">
         <div class="col-1 text-end pt-2 pe-1">
-          <h6><strong>Perplexity:</strong></h6>
+          <h4><strong>Perplexity:</strong></h4>
         </div>
         <div class="col-1">
           <select
             id="Perplexity"
             class="form-select"
             aria-label="Default select example"
+            style="font-size: 20px"
           >
             <option selected>15</option>
             <option value="30">30</option>
@@ -94,13 +117,14 @@
           </select>
         </div>
         <div class="col-1 text-end pt-2 pe-1">
-          <h6><strong>Iterations:</strong></h6>
+          <h4><strong>Iterations:</strong></h4>
         </div>
         <div class="col-1">
           <select
             id="Iterations"
             class="form-select"
             aria-label="Default select example"
+            style="font-size: 20px"
           >
             <option selected>500</option>
             <option value="750">750</option>
@@ -108,13 +132,14 @@
           </select>
         </div>
         <div class="col-1 text-end pt-2 pe-1">
-          <h6><strong>LearningRate:</strong></h6>
+          <h4><strong>LearningRate:</strong></h4>
         </div>
         <div class="col-1">
           <select
             id="LearningRate"
             class="form-select"
             aria-label="Default select example"
+            style="font-size: 20px"
           >
             <option selected>auto</option>
             <option value="200">200</option>
@@ -122,8 +147,41 @@
           </select>
         </div>
 
-        <div class="col-2 text-center">
-          <button class="btn btn-primary" id="update">Update</button>
+        <div class="col-1 text-center">
+          <button class="btn btn-primary" id="update" style="font-size: 20px">
+            Update
+          </button>
+        </div>
+
+        <div class="col-2">
+          <div
+            class="btn-group"
+            role="group"
+            aria-label="Basic radio toggle button group"
+          >
+            <input
+              type="radio"
+              class="btn-check"
+              name="btnradio"
+              id="redBrush"
+              autocomplete="off"
+              checked
+            />
+            <label class="btn btn-outline-danger" for="redBrush"
+              >Red Brush
+            </label>
+
+            <input
+              type="radio"
+              class="btn-check"
+              name="btnradio"
+              id="greenBrush"
+              autocomplete="off"
+            />
+            <label class="btn btn-outline-success" for="greenBrush"
+              >Green Brush</label
+            >
+          </div>
         </div>
       </div>
 
@@ -134,6 +192,7 @@
               <th></th>
               <th>PCA</th>
               <th>Random Mean</th>
+              <th>Random0</th>
               <th>Random1</th>
               <th>Random2</th>
               <th>Random3</th>
@@ -143,7 +202,6 @@
               <th>Random7</th>
               <th>Random8</th>
               <th>Random9</th>
-              <th>Random10</th>
             </tr>
           </thead>
           <tbody id="result-table"></tbody>
