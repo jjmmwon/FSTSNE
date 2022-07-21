@@ -37,7 +37,11 @@ class ResultTable {
         }
       });
 
-      data = [{ " ": "Loss" }, { " ": "Steadiness" }, { " ": "Cohesiveness" }];
+      data = [
+        { " ": { val: "Loss", best: false } },
+        { " ": { val: "Steadiness", best: false } },
+        { " ": { val: "Cohesiveness", best: false } },
+      ];
 
       let loss = [];
       let steadiness = [];
