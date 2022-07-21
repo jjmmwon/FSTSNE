@@ -79,7 +79,6 @@ function selectionOccured() {
 
 function brushOccured(brushedIndex, idx) {
   scatterplot.forEach((d) => d.brushUpdate(brushedIndex));
-  //scatterplot[idx].brushReset();
 }
 
 async function urltoData(url) {
@@ -93,4 +92,8 @@ async function urltoData(url) {
   }
 }
 
-export { Update };
+function Reset() {
+  scatterplot.forEach((d) => d.brushReset());
+}
+
+export { Update, Reset };
