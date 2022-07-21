@@ -12,7 +12,9 @@ class Scatterplot {
       left: 40,
     };
 
-    this.selected = new Set();
+    this.redSelected = new Set();
+    this.greenSelected = new Set();
+
     this.handlers = {};
     this.isRed = true;
   }
@@ -65,7 +67,6 @@ class Scatterplot {
   //update when select event happened
   selectionUpdate(data) {
     this.data = data ?? this.data; // First update => this.data, else => data
-    this.container.call(this.brush);
 
     this.xScale.domain([-2, 2]).range([0, this.width]);
     this.yScale.domain([-2, 2]).range([this.height, 0]);
@@ -95,21 +96,37 @@ class Scatterplot {
       .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
       .transition()
       .call(d3.axisLeft(this.yScale));
+
+    this.container.call(this.brush);
   }
 
   brushUpdate(selectedIndex) {
-    this.circles
-      .transition()
-      .attr("r", (d) => (selectedIndex.has(d[""]) ? 3 : 2));
-
     this.isRed = d3
       .select("input[type=radio][id=redBrush]")
       .property("checked");
 
     if (this.isRed) {
-      this.circles.classed("redBrush", (d) => selectedIndex.has(d[""]));
+      selectedIndex.forEach((val) => {
+        this.redSelected.add(val);
+      });
     } else {
-      this.circles.classed("greenBrush", (d) => selectedIndex.has(d[""]));
+      selectedIndex.forEach((val) => {
+        this.greenSelected.add(val);
+      });
+    }
+
+    this.circles
+      .transition()
+      .attr("r", (d) => (selectedIndex.has(d[""]) ? 3 : 2));
+
+    // this.isRed = d3
+    //   .select("input[type=radio][id=redBrush]")
+    //   .property("checked");
+
+    if (this.isRed) {
+      this.circles.classed("redBrush", (d) => this.redSelected.has(d[""]));
+    } else {
+      this.circles.classed("greenBrush", (d) => this.greenSelected.has(d[""]));
     }
 
     // .attr("fill", (d) =>
@@ -118,7 +135,17 @@ class Scatterplot {
   }
 
   brushReset() {
-    this.container.call(this.brush.clear);
+    this.isRed = d3
+      .select("input[type=radio][id=redBrush]")
+      .property("checked");
+
+    if (this.isRed) {
+      this.redSelected.clear();
+      this.circles.classed("redBrush", false);
+    } else {
+      this.greenSelected.clear();
+      this.circles.classed("greenBrush", false);
+    }
   }
 
   isBrushed(d, selection) {
