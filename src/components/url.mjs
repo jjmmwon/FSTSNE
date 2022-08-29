@@ -25,6 +25,9 @@ let url = {
     this.urlList.push(
       `https://raw.githubusercontent.com/jjmmwon/t-sneEvaluation/main/result/${title}/${title}_result.json`
     );
+    this.urlList.push(
+      `https://raw.githubusercontent.com/jjmmwon/t-sneEvaluation/main/result/${title}/perplexity_${perp}_max_iter_${iter}_learning_rate_${lr}_/${title}_FSM.json`
+    );
   },
 
   // make csv url using base url

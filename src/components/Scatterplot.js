@@ -12,8 +12,7 @@ class Scatterplot {
       left: 40,
     };
 
-    this.redSelected = new Set();
-    this.greenSelected = new Set();
+    this.selected = new Set();
 
     this.handlers = {};
     this.isRed = true;
@@ -101,51 +100,19 @@ class Scatterplot {
   }
 
   brushUpdate(selectedIndex) {
-    this.isRed = d3
-      .select("input[type=radio][id=redBrush]")
-      .property("checked");
-
-    if (this.isRed) {
-      selectedIndex.forEach((val) => {
-        this.redSelected.add(val);
-      });
-    } else {
-      selectedIndex.forEach((val) => {
-        this.greenSelected.add(val);
-      });
-    }
+    selectedIndex.forEach((val) => {
+      this.selected.add(val);
+    });
 
     this.circles
       .transition()
       .attr("r", (d) => (selectedIndex.has(d[""]) ? 3 : 2));
 
-    // this.isRed = d3
-    //   .select("input[type=radio][id=redBrush]")
-    //   .property("checked");
-
-    if (this.isRed) {
-      this.circles.classed("redBrush", (d) => this.redSelected.has(d[""]));
-    } else {
-      this.circles.classed("greenBrush", (d) => this.greenSelected.has(d[""]));
-    }
-
-    // .attr("fill", (d) =>
-    //   selectedIndex.has(d[""]) ? "rgb(200,50,0)" : "rgb(0,100,200)"
-    // );
+    this.circles.classed("brushed", (d) => this.selected.has(d[""]));
   }
 
   brushReset() {
-    this.isRed = d3
-      .select("input[type=radio][id=redBrush]")
-      .property("checked");
-
-    if (this.isRed) {
-      this.redSelected.clear();
-      this.circles.classed("redBrush", false);
-    } else {
-      this.greenSelected.clear();
-      this.circles.classed("greenBrush", false);
-    }
+    this.circles.classed("brushed", false);
   }
 
   isBrushed(d, selection) {
@@ -160,16 +127,7 @@ class Scatterplot {
   brushCircles(event) {
     let selection = event.selection;
 
-    this.isRed = d3
-      .select("input[type=radio][id=redBrush]")
-      .property("checked");
-
-    if (this.isRed) {
-      this.circles.classed("redBrush", (d) => this.isBrushed(d, selection));
-    } else {
-      this.circles.classed("greenBrush", (d) => this.isBrushed(d, selection));
-    }
-    // this.circles.classed("brushed", (d) => this.isBrushed(d, selection));
+    this.circles.classed("brushed", (d) => this.isBrushed(d, selection));
 
     if (this.handlers.brush)
       this.handlers.brush(
@@ -179,5 +137,21 @@ class Scatterplot {
 
   on(eventType, handler) {
     this.handlers[eventType] = handler;
+  }
+
+  frequentSubgraphUpdate(fsList) {
+    let r, g, b;
+    fsList.forEach((fs, idx) => {
+      r = idx % 10;
+      g = (idx / 10) % 10;
+      b = idx / 100;
+
+      this.circles
+        .filter((d) => fs.has(d[""]))
+        .attr(
+          "fill",
+          `rgb(${(55 + r) % 256},${(55 + g) % 256},${(55 + b) % 256})`
+        );
+    });
   }
 }

@@ -2,6 +2,7 @@ import { Scatterplot } from "./Scatterplot.js";
 import { url } from "./url.mjs";
 import { ResultTable } from "./Table.mjs";
 import { Procrustes } from "./Procrustes.mjs";
+import { FrequentSubgraph } from "./FrequentSubgraph.mjs";
 
 let title, perp, iter, lr, resultTable;
 let init = true;
@@ -13,7 +14,7 @@ const selectionLR = document.getElementById("LearningRate");
 
 resultTable = new ResultTable("#result-table");
 
-let data, procrustes;
+let data, procrustes, frqSubG;
 
 async function Update() {
   /*
@@ -21,7 +22,7 @@ async function Update() {
     -> update url and data
     -> apply Procrustes analysis to data
     -> init ? drawScatterplot : select update
-    -> table update    
+    -> table update
   */
   title = selectionTitle.options[selectionTitle.selectedIndex].text;
   perp = selectionPerp.options[selectionPerp.selectedIndex].text;
@@ -30,7 +31,8 @@ async function Update() {
   url.update(title, perp, iter, lr);
 
   await urltoData(url);
-
+  console.log(url.urlList.at(-1));
+  await frequentSubgraph(url.urlList.at(-1));
   //console.log(data);
 
   procrustes = new Procrustes(data);
@@ -90,6 +92,15 @@ async function urltoData(url) {
       d["1"] = +d["1"];
     });
   }
+}
+
+async function frequentSubgraph(url) {
+  d3.json(url).then((jsonData) => {
+    console.log(jsonData);
+    frqSubG = jsonData["FSM"];
+  });
+
+  scatterplot.forEach((d) => d.frequentSubgraphUpdate(frqSubG));
 }
 
 function Reset() {
