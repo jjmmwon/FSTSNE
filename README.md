@@ -1,1 +1,1 @@
-# TsneComparisonWithD3
+# FrequentSubgraphTSNE

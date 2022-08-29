@@ -31,12 +31,12 @@ async function Update() {
 
   await urltoData(url);
 
-  console.log(data);
+  //console.log(data);
 
   procrustes = new Procrustes(data);
   procrustes.run();
 
-  console.log(data);
+  //console.log(data);
 
   if (init) {
     drawScatterplot(url);

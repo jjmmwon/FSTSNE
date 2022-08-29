@@ -84,13 +84,13 @@ class Procrustes {
   }
 
   #rotation6(datum) {
-    // 3도 회전
+    // 6도 회전
     let degree = Math.PI / 30;
     this.#rotation(datum, degree);
   }
 
   #findBestCaseByIter(base, datum) {
-    // 3도씩 120번 회전해 최고의 케이스를 찾고 그만큼 회전
+    // 6도씩 60번 회전해 최고의 케이스를 찾고 그만큼 회전
     let comparisonResult = [];
 
     for (let i = 0; i < 60; i++) {

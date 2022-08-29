@@ -169,7 +169,7 @@ class Scatterplot {
     } else {
       this.circles.classed("greenBrush", (d) => this.isBrushed(d, selection));
     }
-    //this.circles.classed("brushed", (d) => this.isBrushed(d, selection));
+    // this.circles.classed("brushed", (d) => this.isBrushed(d, selection));
 
     if (this.handlers.brush)
       this.handlers.brush(

@@ -25,16 +25,6 @@
         font-size: 25px;
       }
 
-      .redBrush {
-        fill: rgb(255, 127, 14);
-        r: 3;
-      }
-
-      .greenBrush {
-        fill: rgb(44, 160, 44);
-        r: 3;
-      }
-
       .container {
         max-width: 2400px;
         background: white;
@@ -43,7 +33,7 @@
       .brushed {
         stroke-width: 1;
         stroke: gray;
-        r: 3;
+        r: 4;
       }
 
       .best {
@@ -154,37 +144,11 @@
         </div>
 
         <div class="col-auto text-center">
-          <div
-            class="btn-group"
-            role="group"
-            aria-label="Basic radio toggle button group"
+          <button
+            class="btn btn-outline-danger"
+            id="reset"
+            style="font-size: 20px"
           >
-            <input
-              type="radio"
-              class="btn-check"
-              name="btnradio"
-              id="redBrush"
-              autocomplete="off"
-              checked
-            />
-            <label class="btn btn-outline-danger" for="redBrush"
-              >Red Brush
-            </label>
-
-            <input
-              type="radio"
-              class="btn-check"
-              name="btnradio"
-              id="greenBrush"
-              autocomplete="off"
-            />
-            <label class="btn btn-outline-success" for="greenBrush"
-              >Green Brush</label
-            >
-          </div>
-        </div>
-        <div class="col-auto text-center">
-          <button class="btn btn-danger" id="reset" style="font-size: 20px">
             Reset
           </button>
         </div>
