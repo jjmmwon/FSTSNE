@@ -2,7 +2,6 @@ import { Scatterplot } from "./Scatterplot.js";
 import { url } from "./url.mjs";
 import { ResultTable } from "./Table.mjs";
 import { Procrustes } from "./Procrustes.mjs";
-import { FrequentSubgraph } from "./FrequentSubgraph.mjs";
 
 let title, perp, iter, lr, resultTable;
 let init = true;
@@ -32,7 +31,6 @@ async function Update() {
 
   await urltoData(url);
   console.log(url.urlList.at(-1));
-  await frequentSubgraph(url.urlList.at(-1));
   //console.log(data);
 
   procrustes = new Procrustes(data);
@@ -46,7 +44,7 @@ async function Update() {
   } else {
     selectionOccured();
   }
-
+  await frequentSubgraph(url.urlList.at(-1));
   await resultTable.update(title, perp, iter, lr);
 }
 
@@ -96,11 +94,16 @@ async function urltoData(url) {
 
 async function frequentSubgraph(url) {
   d3.json(url).then((jsonData) => {
-    console.log(jsonData);
     frqSubG = jsonData["FSM"];
+    scatterplot.forEach((d) => {
+      d.frequentSubgraphUpdate(frqSubG);
+    });
   });
 
-  scatterplot.forEach((d) => d.frequentSubgraphUpdate(frqSubG));
+  // scatterplot.forEach((d) => {
+  //   console.log(d);
+  //   d.frequentSubgraphUpdate(frqSubG);
+  // });
 }
 
 function Reset() {

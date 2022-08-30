@@ -79,8 +79,8 @@ class Scatterplot {
       .transition()
       .attr("cx", (d) => this.xScale(d["0"]))
       .attr("cy", (d) => this.yScale(d["1"]))
-      .attr("fill", "rgb(0,100,200)")
-      .attr("opacity", 0.6)
+      .attr("fill", "rgb(20,20,20)")
+      .attr("opacity", 0.5)
       .attr("r", 2);
 
     this.xAxis
@@ -142,16 +142,19 @@ class Scatterplot {
   frequentSubgraphUpdate(fsList) {
     let r, g, b;
     fsList.forEach((fs, idx) => {
-      r = idx % 10;
-      g = (idx / 10) % 10;
-      b = idx / 100;
+      r = idx % 14;
+      g = parseInt(idx / 14) % 14;
+      b = parseInt(idx / 196);
 
       this.circles
-        .filter((d) => fs.has(d[""]))
+        .filter((d) => fs.includes(Number(d[""])))
         .attr(
           "fill",
-          `rgb(${(55 + r) % 256},${(55 + g) % 256},${(55 + b) % 256})`
-        );
+          `rgb(${(45 + 15 * r) % 256},${(45 + 15 * g) % 256},${
+            (45 + 15 * b) % 256
+          })`
+        )
+        .attr("opacity", 0.9);
     });
   }
 }
