@@ -15,7 +15,7 @@ class Scatterplot {
     this.selected = new Set();
 
     this.handlers = {};
-    this.isRed = true;
+    this.isClassed = false;
   }
 
   // initialize by making title, brush and groups of scatterplot
@@ -67,21 +67,52 @@ class Scatterplot {
   selectionUpdate(data) {
     this.data = data ?? this.data; // First update => this.data, else => data
 
+    this.isClassed = "2" in this.data ? true : false;
+
     this.xScale.domain([-2, 2]).range([0, this.width]);
     this.yScale.domain([-2, 2]).range([this.height, 0]);
 
     this.circles = this.container
-      .selectAll("circle")
+      .selectAll("path")
       .data(this.data)
-      .join("circle");
+      .join("path");
 
-    this.circles
-      .transition()
-      .attr("cx", (d) => this.xScale(d["0"]))
-      .attr("cy", (d) => this.yScale(d["1"]))
-      .attr("fill", "rgb(20,20,20)")
-      .attr("opacity", 0.5)
-      .attr("r", 2);
+    if (this.isClassed) {
+      let symbolScale = d3
+        .scaleOrdinal()
+        .domain([...new Set(this.data.map((d) => d["2"]))])
+        .range(d3.symbolFill);
+
+      this.circles
+        .transition()
+        .attr("transform", (d) => {
+          return (
+            "translate(" + this.xScale(d["0"]) + "," + this.yScale(d["1"]) + ")"
+          );
+        })
+        .attr("d", (d) => d3.symbol().type(symbolScale(d["2"])).size(60))
+        .attr("fill", "rgb(20,20,20)")
+        .attr("opacity", 0.5);
+    } else {
+      this.circles
+        .transition()
+        .attr("transform", (d) => {
+          return (
+            "translate(" + this.xScale(d["0"]) + "," + this.yScale(d["1"]) + ")"
+          );
+        })
+        .attr("d", d3.symbol().type(d3.symbolCircle).size(60))
+        .attr("fill", "rgb(20,20,20)")
+        .attr("opacity", 0.5);
+
+      // this.circles
+      // .transition()
+      // .attr("transform", (d) => this.xScale(d["0"]))
+      // .attr("cy", (d) => this.yScale(d["1"]))
+      // .attr("fill", "rgb(20,20,20)")
+      // .attr("opacity", 0.5)
+      // .attr("r", 2);
+    }
 
     this.xAxis
       .attr(
@@ -104,9 +135,9 @@ class Scatterplot {
       this.selected.add(val);
     });
 
-    this.circles
-      .transition()
-      .attr("r", (d) => (selectedIndex.has(d[""]) ? 3 : 2));
+    // this.circles
+    //   .transition()
+    //   .attr("r", (d) => (selectedIndex.has(d[""]) ? 3 : 2));
 
     this.circles.classed("brushed", (d) => this.selected.has(d[""]));
   }

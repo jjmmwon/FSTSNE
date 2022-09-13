@@ -23,7 +23,7 @@ async function Update() {
     -> init ? drawScatterplot : select update
     -> table update
   */
-  title = selectionTitle.options[selectionTitle.selectedIndex].text;
+  title = selectionTitle.options[selectionTitle.selectedIndex].value;
   perp = selectionPerp.options[selectionPerp.selectedIndex].text;
   iter = selectionIter.options[selectionIter.selectedIndex].text;
   lr = selectionLR.options[selectionLR.selectedIndex].text;
@@ -63,7 +63,7 @@ function drawScatterplot(url) {
     scatterplot[i].initialize();
     scatterplot[i].on("brush", (brushedItems) => {
       brushedIndex = new Set(brushedItems.map((d) => d[""]));
-      brushOccured(brushedIndex, i);
+      brushOccured(brushedIndex);
     });
   }
   initScatterplot(scatterplot);
@@ -77,7 +77,7 @@ function selectionOccured() {
   scatterplot.forEach((d, idx) => d.selectionUpdate(data[idx]));
 }
 
-function brushOccured(brushedIndex, idx) {
+function brushOccured(brushedIndex) {
   scatterplot.forEach((d) => d.brushUpdate(brushedIndex));
 }
 
@@ -100,10 +100,6 @@ async function frequentSubgraph(url) {
     });
   });
 
-  // scatterplot.forEach((d) => {
-  //   console.log(d);
-  //   d.frequentSubgraphUpdate(frqSubG);
-  // });
 }
 
 function Reset() {

@@ -89,7 +89,7 @@ class Procrustes {
     this.#rotation(datum, degree);
   }
 
-  #findBestCaseByIter(base, datum) {
+  #findBestCase(base, datum) {
     // 6도씩 60번 회전해 최고의 케이스를 찾고 그만큼 회전
     let comparisonResult = [];
 
@@ -122,7 +122,7 @@ class Procrustes {
     for (let i = 0; i < this.data.length; i++) {
       if (i == 1) continue;
       // this.#rotation(this.data[i], this.#findTheta(base, this.data[i]));
-      this.#findBestCaseByIter(base, this.data[i]);
+      this.#findBestCase(base, this.data[i]);
     }
   }
 }
