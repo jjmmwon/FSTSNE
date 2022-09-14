@@ -24,7 +24,7 @@ class ResultTable {
 
     // Load selected result data from result json file
     d3.json(
-      `https://raw.githubusercontent.com/jjmmwon/t-sneEvaluation/main/result/${title}/${title}_result.json`
+      `https://raw.githubusercontent.com/jjmmwon/FrequentSubgraphTSNE/main/result/${title}/${title}_result.json`
     ).then((jsonData) => {
       jsonData.forEach((d) => {
         let hyperparameter = d["Hyperparameter"];
