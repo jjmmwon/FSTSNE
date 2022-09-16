@@ -1,1 +1,1 @@
-# FrequentSubgraphTSNE
+# FSTSNE
