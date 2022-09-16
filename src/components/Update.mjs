@@ -3,13 +3,14 @@ import { url } from "./url.mjs";
 import { ResultTable } from "./Table.mjs";
 import { Procrustes } from "./Procrustes.mjs";
 
-let title, perp, iter, lr, resultTable;
+let title, perp, iter, lr, minSup, resultTable;
 let init = true;
 
 const selectionTitle = document.getElementById("dataTitle");
 const selectionPerp = document.getElementById("Perplexity");
 const selectionIter = document.getElementById("Iterations");
 const selectionLR = document.getElementById("LearningRate");
+const selectionMinSup = document.getElementById("MinSupport");
 
 resultTable = new ResultTable("#result-table");
 
@@ -27,16 +28,15 @@ async function Update() {
   perp = selectionPerp.options[selectionPerp.selectedIndex].text;
   iter = selectionIter.options[selectionIter.selectedIndex].text;
   lr = selectionLR.options[selectionLR.selectedIndex].text;
+  minSup = selectionMinSup.options[selectionMinSup.selectedIndex].text;
   url.update(title, perp, iter, lr);
 
   await urltoData(url);
   console.log(url.urlList.at(-1));
-  //console.log(data);
+  console.log(data);
 
   procrustes = new Procrustes(data);
   procrustes.run();
-
-  //console.log(data);
 
   if (init) {
     drawScatterplot(url);
@@ -44,7 +44,7 @@ async function Update() {
   } else {
     selectionOccured();
   }
-  await frequentSubgraph(url.urlList.at(-1));
+  await frequentSubgraph(url.urlList.at(-1), minSup);
   await resultTable.update(title, perp, iter, lr);
 }
 
@@ -92,14 +92,17 @@ async function urltoData(url) {
   }
 }
 
-async function frequentSubgraph(url) {
+async function frequentSubgraph(url, minSup) {
   d3.json(url).then((jsonData) => {
-    frqSubG = jsonData["FSM"];
+    jsonData.forEach((d) => {
+      if (d["Min_support"] == minSup) {
+        frqSubG = d["FSM"];
+      }
+    });
     scatterplot.forEach((d) => {
       d.frequentSubgraphUpdate(frqSubG);
     });
   });
-
 }
 
 function Reset() {

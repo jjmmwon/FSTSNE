@@ -23,16 +23,16 @@ let url = {
       this.urlList.push(this.makeURL(title, perp, iter, lr, "random", i));
     }
     this.urlList.push(
-      `https://raw.githubusercontent.com/jjmmwon/FrequentSubgraphTSNE/main/result/${title}/${title}_result.json`
+      `https://raw.githubusercontent.com/jjmmwon/FSTSNE/main/result/${title}/${title}_result.json`
     );
     this.urlList.push(
-      `https://raw.githubusercontent.com/jjmmwon/FrequentSubgraphTSNE/main/result/${title}/perplexity_${perp}_max_iter_${iter}_learning_rate_${lr}_/${title}_FSM.json`
+      `https://raw.githubusercontent.com/jjmmwon/FSTSNE/main/result/${title}/perplexity_${perp}_max_iter_${iter}_learning_rate_${lr}_/${title}_FSM.json`
     );
   },
 
   // make csv url using base url
   makeURL(title, perp, iter, lr, init, num = 0) {
-    return `https://raw.githubusercontent.com/jjmmwon/FrequentSubgraphTSNE/main/result/${title}/perplexity_${perp}_max_iter_${iter}_learning_rate_${lr}_/${title}_${init}_embedded${
+    return `https://raw.githubusercontent.com/jjmmwon/FSTSNE/main/result/${title}/perplexity_${perp}_max_iter_${iter}_learning_rate_${lr}_/${title}_${init}_embedded${
       !num ? "" : num
     }.csv`;
   },

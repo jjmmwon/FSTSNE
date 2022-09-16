@@ -81,8 +81,20 @@ class Scatterplot {
       let symbolScale = d3
         .scaleOrdinal()
         .domain([...new Set(this.data.map((d) => d["2"]))])
-        .range(d3.symbolFill);
+        .range(d3.symbolsFill);
 
+      let domain = [...new Set(this.data.map((d) => d["2"]))];
+      let symbolsRange = [
+        d3.symbolCircle,
+        d3.symbolCross,
+        d3.symbolDiamond,
+        d3.symbolSquare,
+        d3.symbolStar,
+        d3.symbolTriangle,
+        d3.symbolWye,
+      ];
+
+      //symbolsRange[domain.indexOf(d)]
       this.circles
         .transition()
         .attr("transform", (d) => {
@@ -90,9 +102,9 @@ class Scatterplot {
             "translate(" + this.xScale(d["0"]) + "," + this.yScale(d["1"]) + ")"
           );
         })
-        .attr("d", (d) => d3.symbol().type(symbolScale(d["2"])).size(60))
-        .attr("fill", "rgb(20,20,20)")
-        .attr("opacity", 0.5);
+        .attr("d", d3.symbol().type((d)=>{return symbolScale(d["2"])}).size(40))
+        .attr("fill", "Steelblue")
+        .attr("opacity", 0.9);
     } else {
       this.circles
         .transition()
@@ -101,9 +113,9 @@ class Scatterplot {
             "translate(" + this.xScale(d["0"]) + "," + this.yScale(d["1"]) + ")"
           );
         })
-        .attr("d", d3.symbol().type(d3.symbolCircle).size(60))
-        .attr("fill", "rgb(20,20,20)")
-        .attr("opacity", 0.5);
+        .attr("d", d3.symbol().type(d3.symbolCircle).size(40))
+        .attr("fill", "Steelblue")
+        .attr("opacity", 0.9);
 
       // this.circles
       // .transition()
@@ -171,20 +183,13 @@ class Scatterplot {
   }
 
   frequentSubgraphUpdate(fsList) {
-    let r, g, b;
+    let colorScale = d3.scaleOrdinal().domain([0,1,2,3,4,5,6,7,8,9]).range(d3.schemeCategory10)
+    let color;
     fsList.forEach((fs, idx) => {
-      r = idx % 14;
-      g = parseInt(idx / 14) % 14;
-      b = parseInt(idx / 196);
-
+      color = colorScale(idx%10)
       this.circles
         .filter((d) => fs.includes(Number(d[""])))
-        .attr(
-          "fill",
-          `rgb(${(45 + 15 * r) % 256},${(45 + 15 * g) % 256},${
-            (45 + 15 * b) % 256
-          })`
-        )
+        .attr("fill", color)
         .attr("opacity", 0.9);
     });
   }

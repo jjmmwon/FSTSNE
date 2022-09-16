@@ -14,7 +14,7 @@
     <script src="https://d3js.org/d3-queue.v3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
 
-    <title>t-SNE Data Comparison</title>
+    <title>FSt-SNE</title>
     <style>
       body {
         background: #eee;
@@ -33,7 +33,6 @@
       .brushed {
         stroke-width: 1;
         stroke: gray;
-        r: 4;
       }
 
       .best {
@@ -122,6 +121,23 @@
             <option selected>auto</option>
             <option value="200">200</option>
             <option value="800">800</option>
+          </select>
+        </div>
+
+        <div class="col-1 text-end pt-2 pe-1">
+          <h4><strong>MinSupport:</strong></h4>
+        </div>
+        <div class="col-1">
+          <select
+            id="MinSupport"
+            class="form-select"
+            aria-label="Default select example"
+            style="font-size: 20px"
+          >
+            <option selected>9</option>
+            <option value="8">8</option>
+            <option value="7">7</option>
+            <option value="6">6</option>
           </select>
         </div>
 
