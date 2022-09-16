@@ -83,16 +83,16 @@ class Scatterplot {
         .domain([...new Set(this.data.map((d) => d["2"]))])
         .range(d3.symbolsFill);
 
-      let domain = [...new Set(this.data.map((d) => d["2"]))];
-      let symbolsRange = [
-        d3.symbolCircle,
-        d3.symbolCross,
-        d3.symbolDiamond,
-        d3.symbolSquare,
-        d3.symbolStar,
-        d3.symbolTriangle,
-        d3.symbolWye,
-      ];
+      // let domain = [...new Set(this.data.map((d) => d["2"]))];
+      // let symbolsRange = [
+      //   d3.symbolCircle,
+      //   d3.symbolCross,
+      //   d3.symbolDiamond,
+      //   d3.symbolSquare,
+      //   d3.symbolStar,
+      //   d3.symbolTriangle,
+      //   d3.symbolWye,
+      // ];
 
       //symbolsRange[domain.indexOf(d)]
       this.circles
