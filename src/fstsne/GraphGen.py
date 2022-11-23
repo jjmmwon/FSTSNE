@@ -1,6 +1,4 @@
 import glob
-from ipaddress import NetmaskValueError
-from operator import ne
 import os
 import numpy as np
 import pandas as pd
@@ -15,42 +13,25 @@ class GraphGenerator:
         self.k = k
         self.graph = None
         self.current_file = None
-        self.dist_mtrx = None
-        self.CAM = None
+        self.dist_matrix = None
 
 
     def distant_matrix(self, data): # generate distant matrix 
         M = data.shape[0]
-        self.dist_mtrx = np.empty((M,M))
+        self.dist_matrix = np.zeros((M,M))
 
-        for i in range(M):
-            for j in range(i, M):
-                if i==j:
-                    self.dist_mtrx[i,j] =0
-                    continue
-                x1, y1, x2, y2 = data[i,0], data[i,1], data[j,0], data[j,1]
-                self.dist_mtrx[i,j] = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)
-                self.dist_mtrx[j,i] = self.dist_mtrx[i,j]
-        
+        self.dist_matrix = np.sum(np.square(data), axis=1) + (np.sum(np.square(data), axis=1)).reshape(-1,1) - 2*np.matmul(data, data.T)
+
 
     def make_graph(self):   # make graph with k neighbors per each point
         self.graph = snap.TUNGraph.New()
-        self.CAM = ""
-        for i in range(self.dist_mtrx.shape[0]):
+        for i in range(self.dist_matrix.shape[0]):
             self.graph.AddNode(i)
-            self.CAM += "0"*i + "$"
-        idx_list = [i for i,c in enumerate(self.CAM) if c == "$"]
-        
-
         idx = 0
-        for row in self.dist_mtrx:
+        for row in self.dist_matrix:
             nearest_neighbor = row.argsort()
             for i in range(1,self.k+1):
                 self.graph.AddEdge(int(idx), int(nearest_neighbor[i]))
-                if int(idx) < int(nearest_neighbor[i]):
-                    self.CAM = self.CAM[:idx_list[int(nearest_neighbor[i])-1]+int(idx)+1] + "1" + self.CAM[idx_list[int(nearest_neighbor[i])-1]+int(idx)+2:]
-                else:
-                    self.CAM = self.CAM[:idx_list[int(idx)-1]+int(nearest_neighbor[i])+1] + "1" + self.CAM[idx_list[int(idx)-1]+int(nearest_neighbor[i])+2:]
             idx += 1
         
 
@@ -60,10 +41,6 @@ class GraphGenerator:
         FOut = snap.TFOut(f'{save_path}_k_{self.k}.graph')
         self.graph.Save(FOut)
         FOut.Flush()
-
-        CAM_file = open(f'{save_path}_k_{self.k}.txt', "w")
-        CAM_file.write(self.CAM)
-        CAM_file.close()
 
 
     def save_graphViz(self):

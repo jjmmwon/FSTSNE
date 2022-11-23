@@ -14,16 +14,12 @@ class FSM:
 
         self.path = path 
         self.graph_set = []
-        self.CAM_set = []
-        self.adjList_set = []
-        
-        self.candidate = []
-        self.prev_candidate = None
-        self.visit = []
+        self.mother_graph = None
         
         self.FS_set = []
-        self.node_len = None
         self.data_len = None
+        self.node_len = None
+        self.adjList = None
         
 
     def load_graphs(self):
@@ -35,79 +31,160 @@ class FSM:
             FIn = snap.TFIn(graph_file)
             graph = snap.TUNGraph.Load(FIn)
             self.graph_set.append(graph)
-        
-        #Canonical Adjacency Matrix (CAM) 형식으로 저장된 txt 파일 load
-        CAM_path = self.path + '/*.txt'
-        CAM_files = glob.glob(CAM_path)
-        CAM_files.sort()
-        for CAM_file in CAM_files:
-            file = open(CAM_file, "r")
-            CAM = file.readline()
-            self.CAM_set.append(CAM)
 
-        self.data_len = len(CAM_files)
+        self.data_len = len(graph_files)
+        self.node_len = self.graph_set[0].GetNodes()    # 그래프 노드 개수
 
+    def mother_graph_generate(self):
+        """
+        graph의 모든 edge를 포함하는 mother graph 생성
+        """
+        self.mother_graph = snap.TUNGraph.New()
+        for i in range(self.node_len):
+            self.mother_graph.AddNode(i)
+
+        for graph in self.graph_set:
+            for edge in graph.Edges():
+                self.mother_graph.AddEdge(edge.GetSrcNId(),edge.GetDstNId())
+
+    def frequent_edge(self):
+        """
+        mother_graph의 모든 edge를 반복하며 min_support 이상 나타나는 edge만 남겨둔다.
+        """
+        del_edges = []
+        for edge in self.mother_graph.Edges():
+            count = 11
+            for graph in self.graph_set:
+                if(not graph.IsEdge(*(edge.GetId()))):
+                    count -= 1
+                if(count<self.min_support):
+                    del_edges.append(edge.GetId())
+                    break
+
+        for del_edge in del_edges:
+            self.mother_graph.DelEdge(*del_edge)
+    
     def adjList_gen(self):
-        # Adjacency List 생성
-        for g in self.graph_set:
-            adjList = [[] for _ in range(self.node_len)]
-            for edge in g.Edges():
-                adjList[edge.GetSrcNId()].append(edge.GetDstNId())
-                adjList[edge.GetDstNId()].append(edge.GetSrcNId())
-            self.adjList_set.append(adjList)
+        """
+        mother_graph의 adjacency list 생성
+        """
+        self.adjList = [[] for _ in range(self.node_len)]
+        for edge in self.mother_graph.Edges():
+            self.adjList[edge.GetSrcNId()].append(edge.GetDstNId())
+            self.adjList[edge.GetDstNId()].append(edge.GetSrcNId())
 
-    def candidate_gen(self):
-        while False in self.visit:
-            if not self.candidate:
-                for v in range(len(self.visit)-1, -1, -1):
-                    if not self.visit[v]:
-                        self.candidate = [v]
-                        self.visit[v] = True
-                        break
-                # for i, n in enumerate(self.visit):
-                #     if not n:
-                #         self.candidate = [i]
-                #         self.visit[i] = True
-                #         break
-
-            for node in self.candidate:
-                for adj_list in self.adjList_set:
-                    for adj_node in adj_list[node]:
-                        if  not self.visit[adj_node]:
-                            self.candidate.insert(0,adj_node)
-                            self.visit[adj_node] = True
-                            return False    # candidate가 생성되면 return
-            
-            if self.prev_candidate:  # 방문하지 않은 인접한 node가 없으면 이전 frequent subgraph 저장
-                self.FS_set.append(self.prev_candidate)
-                self.prev_candidate = []
-
-            self.candidate = [] # 후보 초기화
-        return True # 더이상 candidate가 없으면 True return
-
+    def get_subgraph(self):
+        """
+        frequent edge 정보를 통해 frequent subgraph 나눈다.
+        node 반복
+            visit == true -> 다음노드
+            else
+                node의 이웃 subgraph에 포함
+                subgraph 안의 node 돌면서 이웃 계속 추가
+                모두 visit true일 시 sugraph의 node set을 list로 변경시켜 FS_set에 추가
+        """
+        visit = [False for _ in range(self.node_len)] 
         
+        for node in range(self.node_len):
+            if visit[node]:
+                continue
+            visit[node] = True
+            subgraph = set([node])
+            subgraph.update(self.adjList[node])
+            while(True):
+                all_visited, next_node = self.isAll_visited(visit, subgraph)
 
-    def subgraph_isomorphism(self, sub_g): 
-        #subgraph의 edge를 반복하며 각 graph에 존재하는지 각 graph의 CAM을 통해 확인한다.
-        occurrence_cnt = self.data_len
-        idx_list = [i for i,c in enumerate(self.CAM_set[0]) if c == "$"]    # CAM을 통해 edge의 존재를 찾기위해 필요한 list
+                if all_visited:
+                    break
+                subgraph.update(self.adjList[next_node])
 
-        # ex) subgraph의 edge가 (3,4)인 경우 검색하는 graph의 CAM에서 3번째 $에서 5번쨰 떨어진 값이 1이면 그 graph에 edge가 존재한다는 것을 알 수 있다.
-        for edge in sub_g.Edges():
-            if edge.GetSrcNId() < edge.GetDstNId(): 
-                for cam in self.CAM_set:
-                    if cam[idx_list[edge.GetDstNId()-1]+edge.GetSrcNId()+1] != "1":
-                        occurrence_cnt -= 1
-                        if occurrence_cnt < self.min_support:
-                            return False
-            else:
-                for cam in self.CAM_set:
-                    if cam[idx_list[edge.GetSrcNId()-1]+edge.GetDstNId()+1] != "1":
-                        occurrence_cnt -= 1
-                        if occurrence_cnt < self.min_support:
-                            return False
-        return True
+            subgraph = (list(subgraph))
+            if len(subgraph) <=5:
+                continue
+            self.FS_set.append(subgraph)
 
+    def isAll_visited(self, visit, node_set):
+        for node in node_set:
+            if not visit[node]:
+                visit[node] = True
+                return False, node
+        return True, None
+
+
+
+
+    # def candidate_gen(self):
+    #     if not self.prev_candidate:
+    #         for n, v in enumerate(self.visit):
+    #             """
+                
+    #             """
+
+
+    #             pass
+
+    #     # while False in self.visit:
+    #     #     if not self.candidate:
+    #     #         for v in range(len(self.visit)-1, -1, -1):
+    #     #             if not self.visit[v]:
+    #     #                 self.candidate = [v]
+    #     #                 self.visit[v] = True
+    #     #                 break
+    #     #         # for i, n in enumerate(self.visit):
+    #     #         #     if not n:
+    #     #         #         self.candidate = [i]
+    #     #         #         self.visit[i] = True
+    #     #         #         break
+
+    #     #     for node in self.candidate:
+    #     #         for adj_list in self.adjList_set:
+    #     #             for adj_node in adj_list[node]:
+    #     #                 if  not self.visit[adj_node]:
+    #     #                     self.candidate.insert(0,adj_node)
+    #     #                     self.visit[adj_node] = True
+    #     #                     return False    # candidate가 생성되면 return
+            
+    #     #     if self.prev_candidate:  # 방문하지 않은 인접한 node가 없으면 이전 frequent subgraph 저장
+    #     #         self.FS_set.append(self.prev_candidate)
+    #     #         self.prev_candidate = []
+
+    #     #     self.candidate = [] # 후보 초기화
+    #     # return True # 더이상 candidate가 없으면 True return
+        
+    # def adjList_gen(self):
+    #     # Adjacency List 생성
+    #     for g in self.graph_set:
+    #         adjList = [[] for _ in range(self.node_len)]
+    #         for edge in g.Edges():
+    #             adjList[edge.GetSrcNId()].append(edge.GetDstNId())
+    #             adjList[edge.GetDstNId()].append(edge.GetSrcNId())
+    #         self.adjList_set.append(adjList)
+
+    # def subgraph_isomorphism(self, sub_g): 
+    #     occurrence_cnt = self.data_len
+
+    #     # ex) subgraph의 edge가 (3,4)인 경우 검색하는 graph의 CAM에서 3번째 $에서 5번쨰 떨어진 값이 1이면 그 graph에 edge가 존재한다는 것을 알 수 있다.
+    #     for edge in sub_g.Edges():
+    #         if edge.GetSrcNId() < edge.GetDstNId(): 
+    #             for cam in self.CAM_set:
+    #                 if cam[idx_list[edge.GetDstNId()-1]+edge.GetSrcNId()+1] != "1":
+    #                     occurrence_cnt -= 1
+    #                     if occurrence_cnt < self.min_support:
+    #                         return False
+    #         else:
+    #             for cam in self.CAM_set:
+    #                 if cam[idx_list[edge.GetSrcNId()-1]+edge.GetDstNId()+1] != "1":
+    #                     occurrence_cnt -= 1
+    #                     if occurrence_cnt < self.min_support:
+    #                         return False
+    #     return True
+
+    # def is_graph(self, sub_g):
+    #     # sub_g로 생성된 것이 그래프인지 확인한다. node에 연결된 edge가 없으면 graph가 아닌 것으로 판단한다.
+    #     for node in sub_g.Nodes():
+    #         if node.GetOutDeg() == 0:
+    #             return False
+    #     return True
 
     def save_FS(self):
         # Frequent subgraph 저장
@@ -136,40 +213,13 @@ class FSM:
                 json.dump(json_data, json_file, indent="\t")
 
 
-    def is_graph(self, sub_g):
-        # sub_g로 생성된 것이 그래프인지 확인한다. node에 연결된 edge가 없으면 graph가 아닌 것으로 판단한다.
-        for node in sub_g.Nodes():
-            if node.GetOutDeg() == 0:
-                return False
-        return True
-
-
     def run(self):
         self.load_graphs()
-        self.node_len = self.graph_set[0].GetNodes()    # 그래프 노드 개수
+        self.mother_graph_generate()        
+        self.frequent_edge()
         self.adjList_gen()
-        self.FS_set = []
-        self.visit = [False for _ in range(self.node_len)]
-       
-        while False in self.visit:
-            if self.candidate_gen():
-                break
-
-            for g in self.graph_set:
-                sub_g = g.GetSubGraph(self.candidate)
-                if not self.is_graph(sub_g):
-                    continue
-                if self.subgraph_isomorphism(sub_g):
-                    self.prev_candidate = self.candidate.copy()
-                    break
-            if self.prev_candidate != self.candidate:
-                self.candidate = []
-                if self.prev_candidate:
-                    self.FS_set.append(self.prev_candidate)
-                    self.prev_candidate = []          
-
+        self.get_subgraph()
         self.save_FS()
-        print(self.FS_set)
 
 def argparsing():
     parser = argparse.ArgumentParser(description="Frequent Subgraph Mining")
