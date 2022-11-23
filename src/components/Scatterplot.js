@@ -23,6 +23,7 @@ class Scatterplot {
     let svgtitle = this.svg.slice(12);
 
     this.svg = d3.select(this.svg);
+    this.legendDiv = d3.select("#legend");
     this.container = this.svg.append("g");
     this.title = this.svg.append("text");
     this.xAxis = this.svg.append("g");
@@ -67,7 +68,7 @@ class Scatterplot {
   selectionUpdate(data) {
     this.data = data ?? this.data; // First update => this.data, else => data
 
-    this.isClassed = "2" in this.data ? true : false;
+    this.isClassed = false; //"2" in this.data ? true : false;
 
     this.xScale.domain([-2, 2]).range([0, this.width]);
     this.yScale.domain([-2, 2]).range([this.height, 0]);
@@ -78,33 +79,30 @@ class Scatterplot {
       .join("path");
 
     if (this.isClassed) {
+      let legendData = [...new Set(this.data.map((d) => d["2"]))];
+
       let symbolScale = d3
         .scaleOrdinal()
-        .domain([...new Set(this.data.map((d) => d["2"]))])
+        .domain(legendData)
         .range(d3.symbolsFill);
 
-      // let domain = [...new Set(this.data.map((d) => d["2"]))];
-      // let symbolsRange = [
-      //   d3.symbolCircle,
-      //   d3.symbolCross,
-      //   d3.symbolDiamond,
-      //   d3.symbolSquare,
-      //   d3.symbolStar,
-      //   d3.symbolTriangle,
-      //   d3.symbolWye,
-      // ];
-
-      //symbolsRange[domain.indexOf(d)]
       this.circles
-        .transition()
         .attr("transform", (d) => {
           return (
             "translate(" + this.xScale(d["0"]) + "," + this.yScale(d["1"]) + ")"
           );
         })
-        .attr("d", d3.symbol().type((d)=>{return symbolScale(d["2"])}).size(40))
+        .attr(
+          "d",
+          d3
+            .symbol()
+            .type((d) => {
+              return symbolScale(d["2"]);
+            })
+            .size(40)
+        )
         .attr("fill", "Steelblue")
-        .attr("opacity", 0.9);
+        .attr("opacity", 0.5);
     } else {
       this.circles
         .transition()
@@ -115,15 +113,7 @@ class Scatterplot {
         })
         .attr("d", d3.symbol().type(d3.symbolCircle).size(40))
         .attr("fill", "Steelblue")
-        .attr("opacity", 0.9);
-
-      // this.circles
-      // .transition()
-      // .attr("transform", (d) => this.xScale(d["0"]))
-      // .attr("cy", (d) => this.yScale(d["1"]))
-      // .attr("fill", "rgb(20,20,20)")
-      // .attr("opacity", 0.5)
-      // .attr("r", 2);
+        .attr("opacity", 0.5);
     }
 
     this.xAxis
@@ -183,10 +173,13 @@ class Scatterplot {
   }
 
   frequentSubgraphUpdate(fsList) {
-    let colorScale = d3.scaleOrdinal().domain([0,1,2,3,4,5,6,7,8,9]).range(d3.schemeCategory10)
+    let colorScale = d3
+      .scaleOrdinal()
+      .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+      .range(d3.schemeCategory10);
     let color;
     fsList.forEach((fs, idx) => {
-      color = colorScale(idx%10)
+      color = colorScale(idx % 10);
       this.circles
         .filter((d) => fs.includes(Number(d[""])))
         .attr("fill", color)
