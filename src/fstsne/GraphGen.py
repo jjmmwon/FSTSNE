@@ -18,8 +18,8 @@ class GraphGenerator:
 
     def distant_matrix(self, data): # generate distant matrix 
         M = data.shape[0]
+        print(data[8], data[15])
         self.dist_matrix = np.zeros((M,M))
-
         self.dist_matrix = np.sum(np.square(data), axis=1) + (np.sum(np.square(data), axis=1)).reshape(-1,1) - 2*np.matmul(data, data.T)
 
 
@@ -30,6 +30,9 @@ class GraphGenerator:
         idx = 0
         for row in self.dist_matrix:
             nearest_neighbor = row.argsort()
+            if idx == 8:
+                print(idx, row[15], nearest_neighbor[:20])
+
             for i in range(1,self.k+1):
                 self.graph.AddEdge(int(idx), int(nearest_neighbor[i]))
             idx += 1
@@ -60,19 +63,23 @@ class GraphGenerator:
         path = self.path + '/*/*.csv'
         
         csv_files = glob.glob(path)
-        print(len(csv_files))
+        #print(len(csv_files))
         
         for csv_file in tqdm(csv_files):
             self.current_file = csv_file
             data = pd.read_csv(self.current_file)
-            
+                        
             if '2' in data.columns:
                 data = data.drop('2', axis=1)
 
             data = data.to_numpy()
-
+            data = data[:, 1:]
+            print(data.shape)
+            print("Generating distance_matrix")
             self.distant_matrix(data)
+            print("Generating graph")
             self.make_graph()
+            print("Saving graph")
             self.save_graph()
             #self.save_graphViz()
         

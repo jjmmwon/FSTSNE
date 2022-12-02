@@ -8,9 +8,10 @@ import numpy as np
 from tqdm import tqdm
 
 class FSM:
-    def __init__(self, graph_title, path, min_support=8):
+    def __init__(self, graph_title, path, min_support=8, k=5):
         self.graph_title = graph_title
         self.min_support = min_support
+        self.k = k
 
         self.path = path 
         self.graph_set = []
@@ -32,6 +33,8 @@ class FSM:
             graph = snap.TUNGraph.Load(FIn)
             self.graph_set.append(graph)
 
+        for i, graph in enumerate(self.graph_set):
+            print(i, graph.IsEdge(8, 15))
         self.data_len = len(graph_files)
         self.node_len = self.graph_set[0].GetNodes()    # 그래프 노드 개수
 
@@ -99,7 +102,7 @@ class FSM:
                 subgraph.update(self.adjList[next_node])
 
             subgraph = (list(subgraph))
-            if len(subgraph) <=5:
+            if len(subgraph) > 2:
                 continue
             self.FS_set.append(subgraph)
 
@@ -199,18 +202,19 @@ class FSM:
         # with open(json_path, 'w') as outfile:
         #     json.dump(json_out, outfile)
 
-        if os.path.isfile(json_path):
-            with open(json_path, "r") as json_file:
-                json_data = json.load(json_file)
+        # if os.path.isfile(json_path):
+        #     with open(json_path, "r") as json_file:
+        #         json_data = json.load(json_file)
 
-            json_data.append(json_out)
+        #     json_data.append(json_out)
 
-            with open(json_path, "w") as json_file:
-                json.dump(json_data, json_file, indent="\t")
-        else:
-            json_data = [json_out]
-            with open(json_path, "w") as json_file:
-                json.dump(json_data, json_file, indent="\t")
+        #     with open(json_path, "w") as json_file:
+        #         json.dump(json_data, json_file, indent="\t")
+        # else:
+        json_data = [json_out]
+        print(json_path)
+        with open(json_path, "w") as json_file:
+            json.dump(json_data, json_file, indent="\t")
 
 
     def run(self):
@@ -246,4 +250,3 @@ def main():
 
 if __name__== "__main__":
     main()
-

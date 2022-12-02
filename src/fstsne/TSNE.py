@@ -116,6 +116,10 @@ class TSNE:
         """
         Measuring an embedded data with SNC method
         """
+        if(True):
+            snc = (0, 0)
+            self.SnC[self.init].append(snc)
+            return
         metrics = SNC( raw = self.original_data, emb = self.embedded_data, iteration=300)
         metrics.fit()
 
