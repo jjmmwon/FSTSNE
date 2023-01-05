@@ -29,11 +29,11 @@ async function Update() {
   iter = selectionIter.options[selectionIter.selectedIndex].text;
   lr = selectionLR.options[selectionLR.selectedIndex].text;
   minSup = selectionMinSup.options[selectionMinSup.selectedIndex].text;
-  url.update(title, perp, iter, lr);
+  url.update(title, perp, iter, lr, minSup);
 
   await urltoData(url);
-  console.log(url.urlList.at(-1));
-  console.log(data);
+  // console.log(url.urlList.at(-1));
+  // console.log(data);
 
   procrustes = new Procrustes(data);
   procrustes.run();
@@ -97,6 +97,13 @@ async function frequentSubgraph(url, minSup) {
     jsonData.forEach((d) => {
       if (d["Min_support"] == minSup) {
         frqSubG = d["FSM"];
+        // 상위 10개까지
+        if (frqSubG.length > 10) {
+          frqSubG.sort((a, b) => {
+            return b.length - a.length;
+          });
+          console.log(frqSubG.map((x) => x.length));
+        }
       }
     });
     scatterplot.forEach((d) => {

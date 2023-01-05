@@ -15,7 +15,7 @@ let url = {
   ],
 
   // Update urlList
-  update(title, perp, iter, lr) {
+  update(title, perp, iter, lr, minSup) {
     this.urlList = [];
 
     this.urlList.push(this.makeURL(title, perp, iter, lr, "pca"));
@@ -26,7 +26,8 @@ let url = {
       `https://raw.githubusercontent.com/jjmmwon/FSTSNE/main/result/${title}/${title}_result.json`
     );
     this.urlList.push(
-      `https://raw.githubusercontent.com/jjmmwon/FSTSNE/main/result/${title}/perplexity_${perp}_max_iter_${iter}_learning_rate_${lr}_/${title}_FSM.json`
+      //`http://127.0.0.1:5500/mw_dir/FS_TSNE/result/${title}/perplexity_${perp}_max_iter_${iter}_learning_rate_${lr}_/${title}_FSM.json`
+      `https://raw.githubusercontent.com/jjmmwon/FSTSNE/main/result/${title}/perplexity_${perp}_max_iter_${iter}_learning_rate_${lr}_/${title}_min_sup_${minSup}_FSM.json`
     );
   },
 
